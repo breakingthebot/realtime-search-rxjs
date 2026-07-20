@@ -74,7 +74,8 @@ describe('InstantCatalog Application Search Systems', () => {
     
     // Wait for debounce + delay
     await new Promise(resolve => setTimeout(resolve, 800));
-    expect(app.searchResults().length).toBe(15);
+    expect(app.searchResults().length).toBe(6);
+    expect(app.allFilteredProducts.length).toBe(15);
   });
 
   it('should cache search results and return them instantly on second query', async () => {
@@ -141,7 +142,7 @@ describe('InstantCatalog Application Search Systems', () => {
     app.activeSort.set('price-low');
     await new Promise(resolve => setTimeout(resolve, 450));
 
-    const results = app.searchResults();
+    const results = app.allFilteredProducts;
     expect(results.length).toBe(15);
     expect(results[0].price).toBe(79);
     expect(results[14].price).toBe(2499);
@@ -157,7 +158,7 @@ describe('InstantCatalog Application Search Systems', () => {
     app.activeSort.set('price-high');
     await new Promise(resolve => setTimeout(resolve, 450));
 
-    const results = app.searchResults();
+    const results = app.allFilteredProducts;
     expect(results.length).toBe(15);
     expect(results[0].price).toBe(2499);
     expect(results[14].price).toBe(79);
@@ -208,6 +209,38 @@ describe('InstantCatalog Application Search Systems', () => {
     app.clearHistory(mockEvent);
     expect(app.recentQueries()).toEqual([]);
     expect(localStorage.getItem('recent_queries')).toBeNull();
+  });
+
+  it('should slice query results into initial pages of 6 items', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    expect(app.searchResults().length).toBe(6);
+    expect(app.hasMorePages()).toBe(true);
+  });
+
+  it('should load subsequent page chunks upon triggering loadNextPage', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    app.loadNextPage();
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    expect(app.searchResults().length).toBe(12);
+    expect(app.currentPage()).toBe(2);
+    expect(app.hasMorePages()).toBe(true);
+
+    app.loadNextPage();
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    expect(app.searchResults().length).toBe(15);
+    expect(app.hasMorePages()).toBe(false);
   });
 });
 

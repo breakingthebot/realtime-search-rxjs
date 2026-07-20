@@ -101,7 +101,7 @@
     <!-- Search Status Bar & Sorting Dropdown -->
     <div class="search-status-bar" *ngIf="!hasError()">
       <p class="status-count" *ngIf="!isLoading()">
-        🔍 Found {{ searchResults().length }} {{ searchResults().length === 1 ? 'result' : 'results' }}
+        🔍 Found {{ allFilteredProducts.length }} {{ allFilteredProducts.length === 1 ? 'result' : 'results' }}
         <span *ngIf="queryValue()">for "{{ queryValue() }}"</span>
       </p>
       <p class="status-count" *ngIf="isLoading()">
@@ -156,8 +156,21 @@
       </div>
     </div>
 
+    <!-- Scroll Sentinel / Pagination Loader -->
+    <div #scrollSentinel class="scroll-sentinel" *ngIf="!isLoading() && !hasError()">
+      <div class="scrolling-loader" *ngIf="hasMorePages()">
+        <span class="spinner-dot dot-1"></span>
+        <span class="spinner-dot dot-2"></span>
+        <span class="spinner-dot dot-3"></span>
+        <span class="spinner-text">Scrolling to load more items...</span>
+      </div>
+      <p class="end-catalog-text" *ngIf="!hasMorePages() && searchResults().length > 0">
+        ✨ You have reached the end of the catalog
+      </p>
+    </div>
+
     <!-- Empty Search State -->
-    <div class="empty-state-panel" *ngIf="searchResults().length === 0 && !isLoading() && !hasError()">
+    <div class="empty-state-panel" *ngIf="allFilteredProducts.length === 0 && !isLoading() && !hasError()">
       <span class="empty-icon">📂</span>
       <h2>No Matches Found</h2>
       <p>We couldn't find any products matching "{{ queryValue() }}". Try adjusting your spelling or filters.</p>
