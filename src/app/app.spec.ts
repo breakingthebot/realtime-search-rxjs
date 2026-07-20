@@ -4,6 +4,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
+import { vi } from 'vitest';
 import { App } from './app';
 import { SearchService } from './services/search';
 
@@ -373,6 +374,26 @@ describe('InstantCatalog Application Search Systems', () => {
 
     expect(app.latencyLogs().length).toBe(1);
     expect(app.latencyLogs()[0].duration).toBeGreaterThanOrEqual(780);
+  });
+
+  it('should support exporting latency telemetry logs as a JSON file download', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    
+    // Setup some fake telemetry
+    app.latencyLogs.set([
+      { query: '"sony"', duration: 400, isCacheHit: false },
+      { query: '"sony"', duration: 0, isCacheHit: true }
+    ]);
+
+    const realAnchor = document.createElement('a');
+    const clickSpy = vi.spyOn(realAnchor, 'click').mockImplementation(() => {});
+    const createSpy = vi.spyOn(document, 'createElement').mockReturnValue(realAnchor);
+    
+    app.exportTelemetry();
+    
+    expect(createSpy).toHaveBeenCalledWith('a');
+    expect(clickSpy).toHaveBeenCalled();
   });
 });
 

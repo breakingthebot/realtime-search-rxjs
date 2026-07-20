@@ -266,6 +266,19 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     this.latencyLogs.set([newLog, ...current].slice(0, 5));
   }
 
+  exportTelemetry(): void {
+    const logs = this.latencyLogs();
+    if (logs.length === 0) return;
+
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(logs, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `instantcatalog_telemetry_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  }
+
   isCategorySelected(category: string): boolean {
     return this.selectedCategories().includes(category);
   }

@@ -1001,6 +1001,27 @@
   font-style: italic;
 }
 
+.btn-export-telemetry {
+  background-color: rgba(99, 102, 241, 0.05);
+  border: 1px dashed rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+  text-align: center;
+  margin-top: 12px;
+}
+
+.btn-export-telemetry:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.6);
+  color: #ffffff;
+}
+
 /* Responsive Media Queries */
 @media (max-width: 960px) {
   .workspace-row {

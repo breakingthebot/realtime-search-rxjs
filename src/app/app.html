@@ -189,6 +189,15 @@
               </div>
             </div>
           </div>
+
+          <button 
+            *ngIf="latencyLogs().length > 0"
+            class="btn-export-telemetry"
+            (click)="exportTelemetry()"
+          >
+            📥 Export Telemetry Logs
+          </button>
+
           <ng-template #noTelemetry>
             <p class="telemetry-empty-text">Execute search queries to report real-time RxJS latency.</p>
           </ng-template>
