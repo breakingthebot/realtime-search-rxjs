@@ -10,10 +10,12 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { SearchService } from './services/search';
 import { Product } from './models/product';
 
+import { HighlightPipe } from './utils/highlight.pipe';
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HighlightPipe],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

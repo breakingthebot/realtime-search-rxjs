@@ -68,8 +68,8 @@
             <span class="category-pill">{{ product.category }}</span>
             <span class="rating-badge">⭐ {{ product.rating }}</span>
           </div>
-          <h3 class="product-title">{{ product.title }}</h3>
-          <p class="product-desc">{{ product.description }}</p>
+          <h3 class="product-title" [innerHTML]="product.title | highlight:queryValue()"></h3>
+          <p class="product-desc" [innerHTML]="product.description | highlight:queryValue()"></p>
           <div class="card-footer-row">
             <span class="product-price">${{ product.price }}</span>
             <button class="btn-action-view">View Details</button>

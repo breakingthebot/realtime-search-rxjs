@@ -77,3 +77,32 @@ describe('InstantCatalog Application Search Systems', () => {
     expect(app.searchResults().length).toBe(15);
   });
 });
+
+import { HighlightPipe } from './utils/highlight.pipe';
+
+describe('HighlightPipe Text Formatting', () => {
+  let pipe: HighlightPipe;
+
+  beforeEach(() => {
+    TestBed.runInInjectionContext(() => {
+      pipe = new HighlightPipe();
+    });
+  });
+
+  it('should return original value if search query is empty', () => {
+    const result = pipe.transform('iPhone 15 Pro', '');
+    expect(result).toBe('iPhone 15 Pro');
+  });
+
+  it('should wrap matching characters in mark tags case-insensitively', () => {
+    const result = pipe.transform('iPhone 15 Pro', 'pro') as any;
+    const htmlString = result.changingThisBreaksApplicationSecurity;
+    expect(htmlString).toContain('<mark class="text-highlight">Pro</mark>');
+  });
+
+  it('should escape special regex symbols correctly without crashing', () => {
+    const result = pipe.transform('Target+Plus', 't+') as any;
+    const htmlString = result.changingThisBreaksApplicationSecurity;
+    expect(htmlString).toContain('<mark class="text-highlight">t+</mark>');
+  });
+});
