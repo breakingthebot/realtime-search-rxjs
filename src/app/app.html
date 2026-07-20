@@ -147,6 +147,28 @@
           </div>
         </div>
 
+        <!-- Latency Simulation Panel -->
+        <div class="filter-section">
+          <h3>API Latency Simulation</h3>
+          <div class="price-slider-group">
+            <div class="price-slider-item">
+              <div class="slider-meta">
+                <span class="slider-title">Simulated Delay</span>
+                <span class="slider-value-badge">{{ searchService.simulateLatency() }}ms</span>
+              </div>
+              <input 
+                type="range" 
+                [ngModel]="searchService.simulateLatency()" 
+                (ngModelChange)="searchService.simulateLatency.set($event)" 
+                min="0" 
+                max="3000" 
+                step="100"
+                class="range-slider-input"
+              />
+            </div>
+          </div>
+        </div>
+
         <!-- Performance Telemetry Stats Chart -->
         <div class="filter-section telemetry-section">
           <h3>Query Telemetry</h3>

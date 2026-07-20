@@ -34,13 +34,15 @@ export class SearchService {
 
   // Signal to trigger simulated server error
   simulateError = signal<boolean>(false);
+  simulateLatency = signal<number>(400);
 
   searchProducts(query: string): Observable<Product[]> {
     const trimmed = query.trim().toLowerCase();
+    const latency = this.simulateLatency();
 
     // If simulated error is enabled, return delayed throwError
     if (this.simulateError()) {
-      return timer(400).pipe(
+      return timer(latency).pipe(
         switchMap(() => throwError(() => new Error('Microservice Gateway Timeout (Simulated Error)')))
       );
     }
@@ -52,7 +54,7 @@ export class SearchService {
 
     if (!trimmed) {
       return of(MOCK_PRODUCTS).pipe(
-        delay(400),
+        delay(latency),
         tap(products => this.cache.set(trimmed, products))
       );
     }
@@ -66,7 +68,7 @@ export class SearchService {
     });
 
     return of(filtered).pipe(
-      delay(400),
+      delay(latency),
       tap(products => this.cache.set(trimmed, products))
     );
   }

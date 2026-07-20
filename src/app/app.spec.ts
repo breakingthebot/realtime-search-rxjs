@@ -355,6 +355,25 @@ describe('InstantCatalog Application Search Systems', () => {
     app.handleInputKeyDown(eventEsc);
     expect(app.activeHistoryIndex()).toBe(-1);
   });
+
+  it('should support dynamic latency settings simulation changes', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.searchService.clearCache();
+    fixture.detectChanges();
+
+    // Clear initial load logs
+    await new Promise(resolve => setTimeout(resolve, 800));
+    app.latencyLogs.set([]);
+
+    // Adjust latency to 800ms
+    app.searchService.simulateLatency.set(800);
+    app.onQueryChange('keyboard');
+    await new Promise(resolve => setTimeout(resolve, 1300)); // debounce + delay
+
+    expect(app.latencyLogs().length).toBe(1);
+    expect(app.latencyLogs()[0].duration).toBeGreaterThanOrEqual(780);
+  });
 });
 
 import { HighlightPipe } from './utils/highlight.pipe';

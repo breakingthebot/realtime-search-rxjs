@@ -294,6 +294,7 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     this.selectedCategories.set([]);
     this.minPrice.set(0);
     this.maxPrice.set(2500);
+    this.searchService.simulateLatency.set(400);
     this.activeSort.set('relevance');
     this.querySubject.next('');
     this.searchInputRef?.nativeElement?.focus();
