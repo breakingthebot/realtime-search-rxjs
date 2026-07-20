@@ -32,3 +32,12 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Built glowing error warning banner overlays with automated retry action selectors.
 - Added header checkbox triggers to simulate microservice network timeouts.
 - Wrote unit specs testing result caching speed improvements and stream recovery under timeouts.
+
+## [0.4.0] - 2026-07-20
+
+### Added
+- Integrated dynamic filter tabs panel for category selections.
+- Added dropdown selector with sorting options (Relevance, Price, and Ratings).
+- Composed multiple streams (search inputs, category tabs, and sort selections) using RxJS `combineLatest`.
+- Ensured category and sort selection changes filter instantly bypassing input typing debounces.
+- Added unit specs asserting category filtering and price ascending/descending sorting orders.
