@@ -110,3 +110,11 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Integrated Voice Search using the HTML5 Web Speech Recognition API (`SpeechRecognition` / `webkitSpeechRecognition`).
 - Built mic button in search input featuring pulsating glowing red animations while listening.
 - Added unit specs mocking SpeechRecognition construct interfaces to verify events trigger query updates.
+
+## [1.3.0] - 2026-07-20
+
+### Added
+- Integrated granular Telemetry Reset Controls clearing performance metrics independently.
+- Redesigned sidebar actions, arranging Export and Clear buttons in a premium side-by-side flex layout.
+- Styled the Clear Telemetry button with red-highlighted outlines and warning-red background colors.
+- Added unit specs verifying the telemetry list is successfully emptied by the reset action.
