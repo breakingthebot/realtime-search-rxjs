@@ -41,3 +41,12 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Composed multiple streams (search inputs, category tabs, and sort selections) using RxJS `combineLatest`.
 - Ensured category and sort selection changes filter instantly bypassing input typing debounces.
 - Added unit specs asserting category filtering and price ascending/descending sorting orders.
+
+## [0.5.0] - 2026-07-20
+
+### Added
+- Integrated LocalStorage-backed query search history tracker (up to 5 recent queries).
+- Implemented suggestion dropdown list appearing underneath focused search input fields.
+- Wrote `mousedown` focus preservation event handler overrides preventing blur/render race conditions.
+- Added deletion routines for individual history queries and clear-all capabilities.
+- Wrote unit specs testing history tracking records in LocalStorage and query deletions.
