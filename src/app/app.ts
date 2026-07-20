@@ -58,6 +58,7 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
 
   // Recent queries history state signal
   recentQueries = signal<string[]>([]);
+  activeHistoryIndex = signal<number>(-1);
 
   // Telemetry logs signal
   latencyLogs = signal<{ query: string; duration: number; isCacheHit: boolean }[]>([]);
@@ -212,6 +213,45 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   onQueryChange(value: string): void {
     this.queryValue.set(value);
     this.querySubject.next(value);
+    this.activeHistoryIndex.set(-1); // Reset highlight when typing
+  }
+
+  handleInputKeyDown(event: KeyboardEvent): void {
+    const history = this.recentQueries();
+    if (!this.isInputFocused() || this.queryValue() || history.length === 0) {
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const nextIndex = this.activeHistoryIndex() + 1;
+      if (nextIndex < history.length) {
+        this.activeHistoryIndex.set(nextIndex);
+      } else {
+        this.activeHistoryIndex.set(0); // Wrap around
+      }
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      const prevIndex = this.activeHistoryIndex() - 1;
+      if (prevIndex >= 0) {
+        this.activeHistoryIndex.set(prevIndex);
+      } else {
+        this.activeHistoryIndex.set(history.length - 1); // Wrap around
+      }
+    } else if (event.key === 'Enter') {
+      const activeIdx = this.activeHistoryIndex();
+      if (activeIdx >= 0 && activeIdx < history.length) {
+        event.preventDefault();
+        const selectedQuery = history[activeIdx];
+        this.triggerSearch(selectedQuery);
+        this.activeHistoryIndex.set(-1);
+        this.searchInputRef?.nativeElement?.blur();
+      }
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.activeHistoryIndex.set(-1);
+      this.searchInputRef?.nativeElement?.blur();
+    }
   }
 
   triggerSearch(value: string): void {

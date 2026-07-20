@@ -316,6 +316,45 @@ describe('InstantCatalog Application Search Systems', () => {
     expect(app.latencyLogs()[0].isCacheHit).toBe(true);
     expect(app.latencyLogs()[0].duration).toBeLessThan(50); // cache is immediate
   });
+
+  it('should navigate through search history list using ArrowUp / ArrowDown keys and select query with Enter', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    
+    // Setup queries in history
+    app.recentQueries.set(['iphone', 'dell', 'sony']);
+    app.isInputFocused.set(true);
+    app.queryValue.set(''); // suggestion list is open
+    
+    expect(app.activeHistoryIndex()).toBe(-1);
+
+    // ArrowDown should move focus down
+    const eventDown1 = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+    app.handleInputKeyDown(eventDown1);
+    expect(app.activeHistoryIndex()).toBe(0);
+
+    const eventDown2 = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+    app.handleInputKeyDown(eventDown2);
+    expect(app.activeHistoryIndex()).toBe(1);
+
+    // ArrowUp should move focus up
+    const eventUp = new KeyboardEvent('keydown', { key: 'ArrowUp' });
+    app.handleInputKeyDown(eventUp);
+    expect(app.activeHistoryIndex()).toBe(0);
+
+    // Wrap-around on ArrowUp when activeIndex is 0
+    app.handleInputKeyDown(eventUp);
+    expect(app.activeHistoryIndex()).toBe(2); // last item 'sony'
+
+    // Wrap-around on ArrowDown when activeIndex is last index
+    app.handleInputKeyDown(eventDown1);
+    expect(app.activeHistoryIndex()).toBe(0);
+
+    // Escape key resets active history index
+    const eventEsc = new KeyboardEvent('keydown', { key: 'Escape' });
+    app.handleInputKeyDown(eventEsc);
+    expect(app.activeHistoryIndex()).toBe(-1);
+  });
 });
 
 import { HighlightPipe } from './utils/highlight.pipe';
