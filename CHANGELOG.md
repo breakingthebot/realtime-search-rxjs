@@ -68,3 +68,13 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Structured side-by-side workspace grid containing the Filter Sidebar next to results columns.
 - Programmed active filters check checks enabling clear queries resets.
 - Added unit specs validating double-slider price restrictions and multi-category intersections.
+
+## [0.8.0] - 2026-07-20
+
+### Added
+- Integrated dynamic performance telemetry tracker logging latency times.
+- Exposed cached query detection utility method `hasCachedQuery` in `SearchService`.
+- Built SVG micro-bar chart representing search times in the sidebar.
+- Added visual indicators distinguishing cache hits (⚡ lightning, green bar) vs API requests (☁️ cloud, purple bar).
+- Exposed global Math utilities inside component template scopes.
+- Created unit tests verifying latency measurements and cache status logs.
