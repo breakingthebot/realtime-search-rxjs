@@ -96,3 +96,10 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Converted hardcoded mock service search query delay to bind to reactive `simulateLatency` signal.
 - Programmed `clearSearch()` filters reset to reset simulated latency back to `400ms`.
 - Added unit specs verifying that altering settings slider values updates telemetry logs correctly.
+
+## [1.1.0] - 2026-07-20
+
+### Added
+- Integrated client-side export utility `exportTelemetry()` to compile logs into downloadable JSON files.
+- Built a dashed glassmorphic export button in the sidebar under the latency bar list.
+- Added unit specs mocking DOM element creation to verify exporter triggers and filename timestamp formats.
