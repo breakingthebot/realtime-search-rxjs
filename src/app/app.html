@@ -47,7 +47,7 @@
 
       <!-- Clear button (only visible when query has text) -->
       <button 
-        *ngIf="queryValue() || activeCategory() !== 'All' || activeSort() !== 'relevance'"
+        *ngIf="queryValue() || selectedCategories().length > 0 || minPrice() > 0 || maxPrice() < 2500 || activeSort() !== 'relevance'"
         class="btn-clear-search" 
         (click)="clearSearch()"
         title="Clear search query and filters"
@@ -86,42 +86,145 @@
       </div>
     </div>
 
-    <!-- Category Filter Tabs -->
-    <div class="category-tabs-bar" *ngIf="!hasError()">
-      <button 
-        *ngFor="let cat of categories"
-        class="btn-category-tab"
-        [class.active]="activeCategory() === cat"
-        (click)="setCategory(cat)"
-      >
-        {{ cat }}
-      </button>
-    </div>
+    <!-- Dynamic Workspace: Filter Sidebar + Catalog Listings Grid -->
+    <div class="workspace-row" *ngIf="!hasError()">
+      <!-- Left sidebar panel -->
+      <aside class="filters-sidebar glass-panel">
+        <!-- Categories Checklist -->
+        <div class="filter-section">
+          <h3>Filter by Categories</h3>
+          <div class="category-checkboxes-list">
+            <label *ngFor="let cat of categoriesList" class="checkbox-wrapper">
+              <input 
+                type="checkbox" 
+                [checked]="isCategorySelected(cat)" 
+                (change)="toggleCategory(cat)"
+                class="filter-checkbox"
+              />
+              <span class="custom-checkbox"></span>
+              <span class="checkbox-label">{{ cat }}</span>
+            </label>
+          </div>
+        </div>
 
-    <!-- Search Status Bar & Sorting Dropdown -->
-    <div class="search-status-bar" *ngIf="!hasError()">
-      <p class="status-count" *ngIf="!isLoading()">
-        🔍 Found {{ allFilteredProducts.length }} {{ allFilteredProducts.length === 1 ? 'result' : 'results' }}
-        <span *ngIf="queryValue()">for "{{ queryValue() }}"</span>
-      </p>
-      <p class="status-count" *ngIf="isLoading()">
-        ⏳ Querying microservices...
-      </p>
+        <!-- Price Range Slider Group -->
+        <div class="filter-section">
+          <h3>Price Range Limit</h3>
+          <div class="price-slider-group">
+            <div class="price-slider-item">
+              <div class="slider-meta">
+                <span class="slider-title">Min Price</span>
+                <span class="slider-value-badge">${{ minPrice() }}</span>
+              </div>
+              <input 
+                type="range" 
+                [ngModel]="minPrice()" 
+                (ngModelChange)="setMinPrice($event)" 
+                min="0" 
+                max="2500" 
+                step="50"
+                class="range-slider-input"
+              />
+            </div>
 
-      <div class="sort-selector-wrapper" *ngIf="!isLoading()">
-        <label for="sort-dropdown">Sort by:</label>
-        <select 
-          id="sort-dropdown"
-          [ngModel]="activeSort()"
-          (ngModelChange)="activeSort.set($event)"
-          name="activeSort"
-          class="sort-dropdown-select"
+            <div class="price-slider-item">
+              <div class="slider-meta">
+                <span class="slider-title">Max Price</span>
+                <span class="slider-value-badge">${{ maxPrice() }}</span>
+              </div>
+              <input 
+                type="range" 
+                [ngModel]="maxPrice()" 
+                (ngModelChange)="setMaxPrice($event)" 
+                min="0" 
+                max="2500" 
+                step="50"
+                class="range-slider-input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Reset button -->
+        <button 
+          *ngIf="queryValue() || selectedCategories().length > 0 || minPrice() > 0 || maxPrice() < 2500 || activeSort() !== 'relevance'"
+          class="btn-reset-sidebar-filters"
+          (click)="clearSearch()"
         >
-          <option value="relevance">Relevance 🎯</option>
-          <option value="price-low">Price: Low to High 💸</option>
-          <option value="price-high">Price: High to Low 📈</option>
-          <option value="rating-high">Rating: High to Low ⭐</option>
-        </select>
+          Reset All Filters
+        </button>
+      </aside>
+
+      <!-- Right results panel -->
+      <div class="results-column">
+        <!-- Search Status Bar & Sorting Dropdown -->
+        <div class="search-status-bar">
+          <p class="status-count" *ngIf="!isLoading()">
+            🔍 Found {{ allFilteredProducts.length }} {{ allFilteredProducts.length === 1 ? 'result' : 'results' }}
+            <span *ngIf="queryValue()">for "{{ queryValue() }}"</span>
+          </p>
+          <p class="status-count" *ngIf="isLoading()">
+            ⏳ Querying microservices...
+          </p>
+
+          <div class="sort-selector-wrapper" *ngIf="!isLoading()">
+            <label for="sort-dropdown">Sort by:</label>
+            <select 
+              id="sort-dropdown"
+              [ngModel]="activeSort()"
+              (ngModelChange)="activeSort.set($event)"
+              name="activeSort"
+              class="sort-dropdown-select"
+            >
+              <option value="relevance">Relevance 🎯</option>
+              <option value="price-low">Price: Low to High 💸</option>
+              <option value="price-high">Price: High to Low 📈</option>
+              <option value="rating-high">Rating: High to Low ⭐</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Results Display Grid -->
+        <div class="results-grid" *ngIf="!isLoading(); else loadingSkeleton">
+          <div class="product-card shadow-sm" *ngFor="let product of searchResults()">
+            <div class="card-media">
+              <span class="product-emoji">{{ product.thumbnail }}</span>
+            </div>
+            <div class="card-details">
+              <div class="card-header-row">
+                <span class="category-pill">{{ product.category }}</span>
+                <span class="rating-badge">⭐ {{ product.rating }}</span>
+              </div>
+              <h3 class="product-title" [innerHTML]="product.title | highlight:queryValue()"></h3>
+              <p class="product-desc" [innerHTML]="product.description | highlight:queryValue()"></p>
+              <div class="card-footer-row">
+                <span class="product-price">${{ product.price }}</span>
+                <button class="btn-action-view">View Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scroll Sentinel / Pagination Loader -->
+        <div #scrollSentinel class="scroll-sentinel">
+          <div class="scrolling-loader" *ngIf="hasMorePages()">
+            <span class="spinner-dot dot-1"></span>
+            <span class="spinner-dot dot-2"></span>
+            <span class="spinner-dot dot-3"></span>
+            <span class="spinner-text">Scrolling to load more items...</span>
+          </div>
+          <p class="end-catalog-text" *ngIf="!hasMorePages() && searchResults().length > 0">
+            ✨ You have reached the end of the catalog
+          </p>
+        </div>
+
+        <!-- Empty Search State -->
+        <div class="empty-state-panel" *ngIf="allFilteredProducts.length === 0 && !isLoading()">
+          <span class="empty-icon">📂</span>
+          <h2>No Matches Found</h2>
+          <p>We couldn't find any products matching your current category, price range, or search options.</p>
+          <button class="btn-reset-filters" (click)="clearSearch()">Reset Search</button>
+        </div>
       </div>
     </div>
 
@@ -133,48 +236,6 @@
         <p>The catalog search microservice timed out returning query lists (simulated).</p>
       </div>
       <button class="btn-retry-search" (click)="retrySearch()">🔄 Retry Query</button>
-    </div>
-
-    <!-- Results Display Grid -->
-    <div class="results-grid" *ngIf="!isLoading() && !hasError(); else loadingSkeleton">
-      <div class="product-card shadow-sm" *ngFor="let product of searchResults()">
-        <div class="card-media">
-          <span class="product-emoji">{{ product.thumbnail }}</span>
-        </div>
-        <div class="card-details">
-          <div class="card-header-row">
-            <span class="category-pill">{{ product.category }}</span>
-            <span class="rating-badge">⭐ {{ product.rating }}</span>
-          </div>
-          <h3 class="product-title" [innerHTML]="product.title | highlight:queryValue()"></h3>
-          <p class="product-desc" [innerHTML]="product.description | highlight:queryValue()"></p>
-          <div class="card-footer-row">
-            <span class="product-price">${{ product.price }}</span>
-            <button class="btn-action-view">View Details</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scroll Sentinel / Pagination Loader -->
-    <div #scrollSentinel class="scroll-sentinel" *ngIf="!isLoading() && !hasError()">
-      <div class="scrolling-loader" *ngIf="hasMorePages()">
-        <span class="spinner-dot dot-1"></span>
-        <span class="spinner-dot dot-2"></span>
-        <span class="spinner-dot dot-3"></span>
-        <span class="spinner-text">Scrolling to load more items...</span>
-      </div>
-      <p class="end-catalog-text" *ngIf="!hasMorePages() && searchResults().length > 0">
-        ✨ You have reached the end of the catalog
-      </p>
-    </div>
-
-    <!-- Empty Search State -->
-    <div class="empty-state-panel" *ngIf="allFilteredProducts.length === 0 && !isLoading() && !hasError()">
-      <span class="empty-icon">📂</span>
-      <h2>No Matches Found</h2>
-      <p>We couldn't find any products matching "{{ queryValue() }}". Try adjusting your spelling or filters.</p>
-      <button class="btn-reset-filters" (click)="clearSearch()">Reset Search</button>
     </div>
 
     <!-- Loading Skeleton Grid Template -->

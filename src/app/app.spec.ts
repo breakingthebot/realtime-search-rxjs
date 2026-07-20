@@ -125,7 +125,7 @@ describe('InstantCatalog Application Search Systems', () => {
 
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    app.setCategory('Smartphones');
+    app.toggleCategory('Smartphones');
     await new Promise(resolve => setTimeout(resolve, 450)); 
     
     expect(app.searchResults().length).toBe(2);
@@ -241,6 +241,43 @@ describe('InstantCatalog Application Search Systems', () => {
 
     expect(app.searchResults().length).toBe(15);
     expect(app.hasMorePages()).toBe(false);
+  });
+
+  it('should filter search results by min and max price limits', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    app.minPrice.set(500);
+    app.maxPrice.set(1000);
+    await new Promise(resolve => setTimeout(resolve, 450));
+
+    const results = app.allFilteredProducts;
+    expect(results.length).toBeGreaterThan(0);
+    results.forEach(product => {
+      expect(product.price).toBeGreaterThanOrEqual(500);
+      expect(product.price).toBeLessThanOrEqual(1000);
+    });
+  });
+
+  it('should filter search results by multiple selected categories simultaneously', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    app.toggleCategory('Smartphones');
+    app.toggleCategory('Laptops');
+    await new Promise(resolve => setTimeout(resolve, 450));
+
+    const results = app.allFilteredProducts;
+    expect(results.length).toBe(4); // 2 smartphones + 2 laptops
+    results.forEach(product => {
+      expect(['Smartphones', 'Laptops']).toContain(product.category);
+    });
   });
 });
 

@@ -35,7 +35,9 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   hasError = signal<boolean>(false);
 
   // Filters & Sorting state signals
-  activeCategory = signal<string>('All');
+  selectedCategories = signal<string[]>([]);
+  minPrice = signal<number>(0);
+  maxPrice = signal<number>(2500);
   activeSort = signal<string>('relevance');
 
   // Pagination states
@@ -46,7 +48,9 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   public allFilteredProducts: Product[] = [];
 
   // Convert signals to observables in component construction phase (valid injection context)
-  private category$ = toObservable(this.activeCategory);
+  private categories$ = toObservable(this.selectedCategories);
+  private minPrice$ = toObservable(this.minPrice);
+  private maxPrice$ = toObservable(this.maxPrice);
   private sort$ = toObservable(this.activeSort);
 
   // Focus tracking state
@@ -56,7 +60,7 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   recentQueries = signal<string[]>([]);
 
   // List of available categories
-  categories = ['All', 'Smartphones', 'Laptops', 'Audio', 'Tablets', 'Accessories', 'Monitors', 'Gaming'];
+  categoriesList = ['Smartphones', 'Laptops', 'Audio', 'Tablets', 'Accessories', 'Monitors', 'Gaming'];
 
   // Scroll sentinel observer
   private observer?: IntersectionObserver;
@@ -87,8 +91,14 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     );
 
     // Combine queries, filters and sorting modes dynamically
-    this.searchSubscription = combineLatest([query$, this.category$, this.sort$]).pipe(
-      switchMap(([query, category, sort]) => {
+    this.searchSubscription = combineLatest([
+      query$, 
+      this.categories$, 
+      this.minPrice$, 
+      this.maxPrice$, 
+      this.sort$
+    ]).pipe(
+      switchMap(([query, categories, minPrice, maxPrice, sort]) => {
         this.isLoading.set(true);
         this.hasError.set(false);
         
@@ -96,9 +106,12 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
           map(products => {
             // Apply category filter
             let results = products;
-            if (category !== 'All') {
-              results = products.filter(p => p.category === category);
+            if (categories.length > 0) {
+              results = products.filter(p => categories.includes(p.category));
             }
+
+            // Apply price range filter
+            results = results.filter(p => p.price >= minPrice && p.price <= maxPrice);
 
             // Apply sorting rules
             if (sort === 'price-low') {
@@ -194,13 +207,34 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     this.querySubject.next(value);
   }
 
-  setCategory(category: string): void {
-    this.activeCategory.set(category);
+  isCategorySelected(category: string): boolean {
+    return this.selectedCategories().includes(category);
+  }
+
+  toggleCategory(category: string): void {
+    const current = this.selectedCategories();
+    if (current.includes(category)) {
+      this.selectedCategories.set(current.filter(c => c !== category));
+    } else {
+      this.selectedCategories.set([...current, category]);
+    }
+  }
+
+  setMinPrice(val: any): void {
+    const numeric = Number(val);
+    this.minPrice.set(Math.min(isNaN(numeric) ? 0 : numeric, this.maxPrice()));
+  }
+
+  setMaxPrice(val: any): void {
+    const numeric = Number(val);
+    this.maxPrice.set(Math.max(isNaN(numeric) ? 2500 : numeric, this.minPrice()));
   }
 
   clearSearch(): void {
     this.queryValue.set('');
-    this.activeCategory.set('All');
+    this.selectedCategories.set([]);
+    this.minPrice.set(0);
+    this.maxPrice.set(2500);
     this.activeSort.set('relevance');
     this.querySubject.next('');
     this.searchInputRef?.nativeElement?.focus();
