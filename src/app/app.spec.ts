@@ -448,6 +448,19 @@ describe('InstantCatalog Application Search Systems', () => {
     // Clean up
     delete (window as any).webkitSpeechRecognition;
   });
+
+  it('should support clearing latency telemetry logs list', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    
+    app.latencyLogs.set([
+      { query: '"sony"', duration: 400, isCacheHit: false }
+    ]);
+    expect(app.latencyLogs().length).toBe(1);
+
+    app.clearTelemetry();
+    expect(app.latencyLogs().length).toBe(0);
+  });
 });
 
 import { HighlightPipe } from './utils/highlight.pipe';

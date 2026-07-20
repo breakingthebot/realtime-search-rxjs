@@ -1032,7 +1032,16 @@
   font-style: italic;
 }
 
-.btn-export-telemetry {
+.telemetry-actions-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.btn-export-telemetry,
+.btn-clear-telemetry {
+  flex: 1;
   background-color: rgba(99, 102, 241, 0.05);
   border: 1px dashed rgba(99, 102, 241, 0.3);
   color: #a5b4fc;
@@ -1041,15 +1050,29 @@
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  width: 100%;
   transition: all 0.2s ease;
   text-align: center;
-  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .btn-export-telemetry:hover {
   background-color: rgba(99, 102, 241, 0.1);
   border-color: rgba(99, 102, 241, 0.6);
+  color: #ffffff;
+}
+
+.btn-clear-telemetry {
+  background-color: rgba(239, 68, 68, 0.03);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.btn-clear-telemetry:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.5);
   color: #ffffff;
 }
 

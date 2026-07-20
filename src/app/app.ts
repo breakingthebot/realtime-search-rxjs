@@ -333,6 +333,10 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     downloadAnchor.remove();
   }
 
+  clearTelemetry(): void {
+    this.latencyLogs.set([]);
+  }
+
   isCategorySelected(category: string): boolean {
     return this.selectedCategories().includes(category);
   }
