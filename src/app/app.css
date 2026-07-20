@@ -155,6 +155,37 @@
   color: var(--text-primary);
 }
 
+.btn-voice-search {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  cursor: pointer;
+  padding: 4px;
+  margin-right: 4px;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  position: relative;
+}
+
+.btn-voice-search:hover {
+  color: var(--text-primary);
+  transform: scale(1.15);
+}
+
+.btn-voice-search.listening {
+  color: #ef4444;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+  animation: mic-pulse 1.2s infinite alternate;
+}
+
+@keyframes mic-pulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.4)); }
+  100% { transform: scale(1.25); filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.8)); }
+}
+
 .keyboard-badge {
   background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-color);

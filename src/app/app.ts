@@ -69,6 +69,11 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   // List of available categories
   categoriesList = ['Smartphones', 'Laptops', 'Audio', 'Tablets', 'Accessories', 'Monitors', 'Gaming'];
 
+  // Voice Search states
+  isListening = signal<boolean>(false);
+  isSpeechSupported = signal<boolean>(false);
+  private recognition: any;
+
   // Scroll sentinel observer
   private observer?: IntersectionObserver;
 
@@ -90,6 +95,41 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
       }
     } catch (e) {
       console.error('Failed to load search history:', e);
+    }
+
+    // Initialize Web Speech Recognition subsystem
+    try {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        this.isSpeechSupported.set(true);
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = false;
+        this.recognition.lang = 'en-US';
+        this.recognition.interimResults = false;
+        this.recognition.maxAlternatives = 1;
+
+        this.recognition.onstart = () => {
+          this.isListening.set(true);
+        };
+
+        this.recognition.onend = () => {
+          this.isListening.set(false);
+        };
+
+        this.recognition.onerror = (err: any) => {
+          console.error('Speech recognition subsystem error: ', err);
+          this.isListening.set(false);
+        };
+
+        this.recognition.onresult = (event: any) => {
+          if (event.results && event.results[0] && event.results[0][0]) {
+            const transcript = event.results[0][0].transcript;
+            this.triggerSearch(transcript);
+          }
+        };
+      }
+    } catch (e) {
+      console.warn('Web Speech API is not supported in this client environment:', e);
     }
 
     const query$ = this.querySubject.pipe(
@@ -257,6 +297,20 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   triggerSearch(value: string): void {
     this.queryValue.set(value);
     this.querySubject.next(value);
+  }
+
+  toggleSpeechRecognition(): void {
+    if (!this.isSpeechSupported() || !this.recognition) return;
+
+    if (this.isListening()) {
+      this.recognition.stop();
+    } else {
+      try {
+        this.recognition.start();
+      } catch (e) {
+        console.error('Speech recognition activation error:', e);
+      }
+    }
   }
 
   recordLatency(query: string, duration: number, isCacheHit: boolean): void {

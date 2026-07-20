@@ -46,6 +46,17 @@
         class="search-input"
       />
 
+      <!-- Voice Search microphone button -->
+      <button 
+        *ngIf="isSpeechSupported()"
+        class="btn-voice-search" 
+        [class.listening]="isListening()"
+        (mousedown)="$event.preventDefault(); toggleSpeechRecognition()"
+        title="Search by voice"
+      >
+        <span class="mic-icon">🎤</span>
+      </button>
+
       <!-- Clear button (only visible when query has text) -->
       <button 
         *ngIf="queryValue() || selectedCategories().length > 0 || minPrice() > 0 || maxPrice() < 2500 || activeSort() !== 'relevance'"

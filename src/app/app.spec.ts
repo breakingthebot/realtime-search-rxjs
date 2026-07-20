@@ -394,6 +394,59 @@ describe('InstantCatalog Application Search Systems', () => {
     
     expect(createSpy).toHaveBeenCalledWith('a');
     expect(clickSpy).toHaveBeenCalled();
+    createSpy.mockRestore();
+  });
+
+  it('should toggle voice search listening and trigger search on transcripts', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+
+    // Mock SpeechRecognition globally on window
+    const mockSpeechRecognition = vi.fn().mockImplementation(function (this: any) {
+      this.start = vi.fn();
+      this.stop = vi.fn();
+      this.continuous = false;
+      this.lang = 'en-US';
+      this.interimResults = false;
+      this.maxAlternatives = 1;
+    });
+    (window as any).webkitSpeechRecognition = mockSpeechRecognition;
+
+    // Re-call ngOnInit to initialize recognition
+    app.ngOnInit();
+
+    expect(app.isSpeechSupported()).toBe(true);
+    expect(app.isListening()).toBe(false);
+
+    const appAny = app as any;
+
+    // Toggle speech recognition should start listening
+    app.toggleSpeechRecognition();
+    expect(appAny.recognition.start).toHaveBeenCalled();
+
+    // Directly trigger start listener callback
+    appAny.recognition.onstart();
+    expect(app.isListening()).toBe(true);
+
+    // Toggle speech recognition again should stop listening
+    app.toggleSpeechRecognition();
+    expect(appAny.recognition.stop).toHaveBeenCalled();
+
+    // Directly trigger result listener callback with a transcript
+    const fakeEvent = {
+      results: [
+        [
+          { transcript: 'Premium Wireless Headphones' }
+        ]
+      ]
+    };
+    const searchSpy = vi.spyOn(app, 'triggerSearch').mockImplementation(() => {});
+    appAny.recognition.onresult(fakeEvent);
+
+    expect(searchSpy).toHaveBeenCalledWith('Premium Wireless Headphones');
+
+    // Clean up
+    delete (window as any).webkitSpeechRecognition;
   });
 });
 
