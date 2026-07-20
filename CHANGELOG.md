@@ -50,3 +50,12 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Wrote `mousedown` focus preservation event handler overrides preventing blur/render race conditions.
 - Added deletion routines for individual history queries and clear-all capabilities.
 - Wrote unit specs testing history tracking records in LocalStorage and query deletions.
+
+## [0.6.0] - 2026-07-20
+
+### Added
+- Integrated high-performance `IntersectionObserver` scroll sentinel at the bottom of the catalog.
+- Added client-side paged list slicing (defaulting to 6 items per page chunk).
+- Built visual loader animations and pulsing progress dots for page loads.
+- Appended end-of-catalog status notifications once all items are paginated.
+- Refactored test suites to verify paged list slices, Observer bypasses, and paged results loaders.
