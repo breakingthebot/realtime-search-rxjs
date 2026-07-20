@@ -78,3 +78,13 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Added visual indicators distinguishing cache hits (⚡ lightning, green bar) vs API requests (☁️ cloud, purple bar).
 - Exposed global Math utilities inside component template scopes.
 - Created unit tests verifying latency measurements and cache status logs.
+
+## [0.9.0] - 2026-07-20
+
+### Added
+- Integrated keyboard accessibility shortcuts to traverse suggestions dropdown list.
+- Implemented `ArrowDown` / `ArrowUp` key event capture with wrap-around safety.
+- Wired `Enter` keys to choose highlighted query values and reset inputs.
+- Wired `Escape` keys to abort suggestion dropdown overlay displays.
+- Styled highlighted list item rows with glassmorphic inset purple border highlight indicators.
+- Added unit specs testing keyboard key clicks, wrap-arounds, and Escape resets.
