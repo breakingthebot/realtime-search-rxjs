@@ -88,3 +88,11 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Wired `Escape` keys to abort suggestion dropdown overlay displays.
 - Styled highlighted list item rows with glassmorphic inset purple border highlight indicators.
 - Added unit specs testing keyboard key clicks, wrap-arounds, and Escape resets.
+
+## [1.0.0] - 2026-07-20
+
+### Added
+- Integrated dynamic simulated latency settings slider in the sidebar.
+- Converted hardcoded mock service search query delay to bind to reactive `simulateLatency` signal.
+- Programmed `clearSearch()` filters reset to reset simulated latency back to `400ms`.
+- Added unit specs verifying that altering settings slider values updates telemetry logs correctly.
