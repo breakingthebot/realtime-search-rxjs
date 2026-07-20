@@ -15,3 +15,11 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Built slate dark-mode UI shell layout featuring animated search bars and status loaders.
 - Added global keyboard shortcut listener focusing search inputs upon pressing `/`.
 - Created robust unit test specs verifying debounced query streaming.
+
+## [0.2.0] - 2026-07-20
+
+### Added
+- Created custom standalone `HighlightPipe` highlighting matching query sub-strings case-insensitively.
+- Safe Html sanitization to bypass security warnings on custom marked highlights.
+- Added visual styling class `.text-highlight` in `app.css` with transparent violet background colors.
+- Added unit specs asserting regex sanitizations and case-insensitive matching tag insertions.
