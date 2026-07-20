@@ -59,3 +59,12 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Built visual loader animations and pulsing progress dots for page loads.
 - Appended end-of-catalog status notifications once all items are paginated.
 - Refactored test suites to verify paged list slices, Observer bypasses, and paged results loaders.
+
+## [0.7.0] - 2026-07-20
+
+### Added
+- Upgraded single-category tab selector into multi-select checkbox filters.
+- Added twin price range limit sliders (Min and Max) enforcing bounds.
+- Structured side-by-side workspace grid containing the Filter Sidebar next to results columns.
+- Programmed active filters check checks enabling clear queries resets.
+- Added unit specs validating double-slider price restrictions and multi-category intersections.
