@@ -103,3 +103,10 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Integrated client-side export utility `exportTelemetry()` to compile logs into downloadable JSON files.
 - Built a dashed glassmorphic export button in the sidebar under the latency bar list.
 - Added unit specs mocking DOM element creation to verify exporter triggers and filename timestamp formats.
+
+## [1.2.0] - 2026-07-20
+
+### Added
+- Integrated Voice Search using the HTML5 Web Speech Recognition API (`SpeechRecognition` / `webkitSpeechRecognition`).
+- Built mic button in search input featuring pulsating glowing red animations while listening.
+- Added unit specs mocking SpeechRecognition construct interfaces to verify events trigger query updates.
