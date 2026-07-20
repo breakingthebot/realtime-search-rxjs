@@ -44,6 +44,9 @@ export class App implements OnInit, OnDestroy {
   // Focus tracking state
   isInputFocused = signal<boolean>(false);
 
+  // Recent queries history state signal
+  recentQueries = signal<string[]>([]);
+
   // List of available categories
   categories = ['All', 'Smartphones', 'Laptops', 'Audio', 'Tablets', 'Accessories', 'Monitors', 'Gaming'];
 
@@ -57,6 +60,16 @@ export class App implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Load recent queries from LocalStorage
+    try {
+      const saved = localStorage.getItem('recent_queries');
+      if (saved) {
+        this.recentQueries.set(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error('Failed to load search history:', e);
+    }
+
     const query$ = this.querySubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -99,6 +112,12 @@ export class App implements OnInit, OnDestroy {
       next: (products) => {
         if (!this.hasError()) {
           this.searchResults.set(products);
+          
+          // Append query value to recent searches if search succeeds
+          const currentQuery = this.queryValue().trim();
+          if (currentQuery) {
+            this.addToHistory(currentQuery);
+          }
         }
         this.isLoading.set(false);
       }
@@ -138,6 +157,51 @@ export class App implements OnInit, OnDestroy {
     const checkbox = event.target as HTMLInputElement;
     this.searchService.simulateError.set(checkbox.checked);
     this.retrySearch();
+  }
+
+  // History Caching Helper Routines
+  addToHistory(query: string): void {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    const current = this.recentQueries();
+    const filtered = current.filter(q => q.toLowerCase() !== trimmed.toLowerCase());
+    const updated = [trimmed, ...filtered].slice(0, 5);
+
+    this.recentQueries.set(updated);
+    try {
+      localStorage.setItem('recent_queries', JSON.stringify(updated));
+    } catch (e) {
+      console.error('Failed to save search history:', e);
+    }
+  }
+
+  selectRecentQuery(query: string, event: MouseEvent): void {
+    event.preventDefault(); // Retains input focus
+    this.triggerSearch(query);
+  }
+
+  removeRecentQuery(query: string, event: MouseEvent): void {
+    event.preventDefault(); // Retains input focus
+    event.stopPropagation(); // Prevents triggerSearch selection click callback
+
+    const updated = this.recentQueries().filter(q => q !== query);
+    this.recentQueries.set(updated);
+    try {
+      localStorage.setItem('recent_queries', JSON.stringify(updated));
+    } catch (e) {
+      console.error('Failed to save search history:', e);
+    }
+  }
+
+  clearHistory(event: MouseEvent): void {
+    event.preventDefault(); // Retains input focus
+    this.recentQueries.set([]);
+    try {
+      localStorage.removeItem('recent_queries');
+    } catch (e) {
+      console.error('Failed to clear search history:', e);
+    }
   }
 
   ngOnDestroy(): void {

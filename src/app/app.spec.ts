@@ -162,6 +162,53 @@ describe('InstantCatalog Application Search Systems', () => {
     expect(results[0].price).toBe(2499);
     expect(results[14].price).toBe(79);
   });
+
+  it('should track queries in LocalStorage search history list on success', async () => {
+    localStorage.clear();
+    
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    app.onQueryChange('keyboard');
+    await new Promise(resolve => setTimeout(resolve, 850));
+
+    expect(app.recentQueries()).toContain('keyboard');
+    
+    const stored = JSON.parse(localStorage.getItem('recent_queries') || '[]');
+    expect(stored).toContain('keyboard');
+  });
+
+  it('should remove items from recent queries list', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    
+    app.recentQueries.set(['mouse', 'headphones']);
+    const mockEvent = {
+      preventDefault: () => {},
+      stopPropagation: () => {}
+    } as MouseEvent;
+
+    app.removeRecentQuery('mouse', mockEvent);
+    expect(app.recentQueries()).toEqual(['headphones']);
+    expect(JSON.parse(localStorage.getItem('recent_queries') || '[]')).toEqual(['headphones']);
+  });
+
+  it('should clear entire search history list', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    
+    app.recentQueries.set(['mouse', 'headphones']);
+    const mockEvent = {
+      preventDefault: () => {}
+    } as MouseEvent;
+
+    app.clearHistory(mockEvent);
+    expect(app.recentQueries()).toEqual([]);
+    expect(localStorage.getItem('recent_queries')).toBeNull();
+  });
 });
 
 import { HighlightPipe } from './utils/highlight.pipe';

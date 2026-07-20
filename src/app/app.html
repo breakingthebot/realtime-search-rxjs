@@ -59,6 +59,31 @@
       <span class="keyboard-badge" *ngIf="!isInputFocused() && !queryValue()">
         Press <kbd>/</kbd>
       </span>
+
+      <!-- Recent Searches Dropdown overlay -->
+      <div class="recent-searches-dropdown shadow-lg" *ngIf="isInputFocused() && !queryValue() && recentQueries().length > 0">
+        <div class="dropdown-header">
+          <span>Recent Searches</span>
+          <button class="btn-clear-all-history" (mousedown)="clearHistory($event)">Clear All</button>
+        </div>
+        <div class="dropdown-list">
+          <div 
+            *ngFor="let query of recentQueries()"
+            class="dropdown-item"
+            (mousedown)="selectRecentQuery(query, $event)"
+          >
+            <span class="history-icon">🕒</span>
+            <span class="history-text">{{ query }}</span>
+            <button 
+              class="btn-delete-history-item" 
+              (mousedown)="removeRecentQuery(query, $event)"
+              title="Remove from history"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Category Filter Tabs -->
