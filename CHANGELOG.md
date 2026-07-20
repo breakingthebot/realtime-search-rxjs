@@ -23,3 +23,12 @@ and this project adheres to [Semantic Versioning](https://semversioning.org/spec
 - Safe Html sanitization to bypass security warnings on custom marked highlights.
 - Added visual styling class `.text-highlight` in `app.css` with transparent violet background colors.
 - Added unit specs asserting regex sanitizations and case-insensitive matching tag insertions.
+
+## [0.3.0] - 2026-07-20
+
+### Added
+- Integrated memory result cache (`Map`) inside `SearchService` to return pre-fetched queries instantly.
+- Added inner stream `catchError` handlers inside the search `switchMap` pipeline.
+- Built glowing error warning banner overlays with automated retry action selectors.
+- Added header checkbox triggers to simulate microservice network timeouts.
+- Wrote unit specs testing result caching speed improvements and stream recovery under timeouts.
