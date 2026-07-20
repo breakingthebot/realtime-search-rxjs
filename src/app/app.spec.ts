@@ -76,6 +76,46 @@ describe('InstantCatalog Application Search Systems', () => {
     await new Promise(resolve => setTimeout(resolve, 800));
     expect(app.searchResults().length).toBe(15);
   });
+
+  it('should cache search results and return them instantly on second query', async () => {
+    searchService.clearCache();
+    
+    const startTime = Date.now();
+    const products1 = await firstValueFrom(searchService.searchProducts('ipad'));
+    const duration1 = Date.now() - startTime;
+    expect(products1.length).toBe(1);
+    expect(duration1).toBeGreaterThanOrEqual(390);
+
+    const startTime2 = Date.now();
+    const products2 = await firstValueFrom(searchService.searchProducts('ipad'));
+    const duration2 = Date.now() - startTime2;
+    expect(products2.length).toBe(1);
+    expect(duration2).toBeLessThan(50);
+  });
+
+  it('should handle API timeouts resiliently using catchError boundary and let streams recover', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    searchService.simulateError.set(true);
+    app.onQueryChange('kindle');
+
+    await new Promise(resolve => setTimeout(resolve, 850));
+
+    expect(app.hasError()).toBe(true);
+
+    searchService.simulateError.set(false);
+    app.onQueryChange('kindle paper');
+
+    await new Promise(resolve => setTimeout(resolve, 850));
+
+    expect(app.hasError()).toBe(false);
+    expect(app.searchResults().length).toBe(1);
+    expect(app.searchResults()[0].title).toBe('Kindle Paperwhite');
+  });
 });
 
 import { HighlightPipe } from './utils/highlight.pipe';

@@ -8,9 +8,24 @@
         <span class="logo-sub">RxJS Real-Time Search Engine</span>
       </div>
     </div>
-    <div class="network-latency-badge" [class.loading]="isLoading()">
-      <span class="status-dot" [class.pulse]="isLoading()"></span>
-      <span class="latency-text">{{ isLoading() ? 'Querying API...' : 'Microservice Connected' }}</span>
+
+    <!-- Error Simulation Control Switch -->
+    <div class="error-simulation-row">
+      <label for="error-toggle-switch">⚠️ Simulate API Drop</label>
+      <input 
+        type="checkbox" 
+        id="error-toggle-switch"
+        [checked]="searchService.simulateError()"
+        (change)="toggleSimulateError($event)"
+        class="error-checkbox-switch"
+      />
+    </div>
+
+    <div class="network-latency-badge" [class.loading]="isLoading()" [class.error]="hasError()">
+      <span class="status-dot" [class.pulse]="isLoading()" [class.error]="hasError()"></span>
+      <span class="latency-text">
+        {{ hasError() ? 'API Offline' : (isLoading() ? 'Querying API...' : 'Microservice Connected') }}
+      </span>
     </div>
   </header>
 
@@ -47,7 +62,7 @@
     </div>
 
     <!-- Search Status Bar -->
-    <div class="search-status-bar">
+    <div class="search-status-bar" *ngIf="!hasError()">
       <p class="status-count" *ngIf="!isLoading()">
         🔍 Found {{ searchResults().length }} {{ searchResults().length === 1 ? 'result' : 'results' }}
         <span *ngIf="queryValue()">for "{{ queryValue() }}"</span>
@@ -57,8 +72,18 @@
       </p>
     </div>
 
+    <!-- Error Alert Banner -->
+    <div class="error-banner shadow-sm" *ngIf="hasError() && !isLoading()">
+      <span class="error-banner-icon">⚠️</span>
+      <div class="error-banner-details">
+        <strong>API Connection Failure</strong>
+        <p>The catalog search microservice timed out returning query lists (simulated).</p>
+      </div>
+      <button class="btn-retry-search" (click)="retrySearch()">🔄 Retry Query</button>
+    </div>
+
     <!-- Results Display Grid -->
-    <div class="results-grid" *ngIf="!isLoading(); else loadingSkeleton">
+    <div class="results-grid" *ngIf="!isLoading() && !hasError(); else loadingSkeleton">
       <div class="product-card shadow-sm" *ngFor="let product of searchResults()">
         <div class="card-media">
           <span class="product-emoji">{{ product.thumbnail }}</span>
@@ -79,7 +104,7 @@
     </div>
 
     <!-- Empty Search State -->
-    <div class="empty-state-panel" *ngIf="searchResults().length === 0 && !isLoading()">
+    <div class="empty-state-panel" *ngIf="searchResults().length === 0 && !isLoading() && !hasError()">
       <span class="empty-icon">📂</span>
       <h2>No Matches Found</h2>
       <p>We couldn't find any products matching "{{ queryValue() }}". Try adjusting your spelling or filters.</p>
@@ -88,7 +113,7 @@
 
     <!-- Loading Skeleton Grid Template -->
     <ng-template #loadingSkeleton>
-      <div class="results-grid">
+      <div class="results-grid" *ngIf="isLoading() && !hasError()">
         <div class="skeleton-card" *ngFor="let skeleton of [1, 2, 3, 4, 5, 6]">
           <div class="skeleton-media skeleton-pulse"></div>
           <div class="skeleton-details">

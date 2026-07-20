@@ -1,10 +1,10 @@
 // src/app/services/search.ts
-// Handles mock product database queries with simulated network latency.
+// Handles mock product database queries, result caching, and error injections.
 // Created: 2026-07-20
 
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Injectable, signal } from '@angular/core';
+import { Observable, of, throwError, timer } from 'rxjs';
+import { delay, switchMap, tap } from 'rxjs/operators';
 import { Product } from '../models/product';
 
 const MOCK_PRODUCTS: Product[] = [
@@ -29,16 +29,32 @@ const MOCK_PRODUCTS: Product[] = [
   providedIn: 'root'
 })
 export class SearchService {
-  /**
-   * Searches simulated products database by title, description or category.
-   * Delays the response by 400ms to simulate microservice network latency.
-   */
+  // In-memory query cache map
+  private cache = new Map<string, Product[]>();
+
+  // Signal to trigger simulated server error
+  simulateError = signal<boolean>(false);
+
   searchProducts(query: string): Observable<Product[]> {
     const trimmed = query.trim().toLowerCase();
-    
-    // If search is empty, return complete database as a list of trending items
+
+    // If simulated error is enabled, return delayed throwError
+    if (this.simulateError()) {
+      return timer(400).pipe(
+        switchMap(() => throwError(() => new Error('Microservice Gateway Timeout (Simulated Error)')))
+      );
+    }
+
+    // Check if query exists in cache (return instantly)
+    if (this.cache.has(trimmed)) {
+      return of(this.cache.get(trimmed)!);
+    }
+
     if (!trimmed) {
-      return of(MOCK_PRODUCTS).pipe(delay(400));
+      return of(MOCK_PRODUCTS).pipe(
+        delay(400),
+        tap(products => this.cache.set(trimmed, products))
+      );
     }
 
     const filtered = MOCK_PRODUCTS.filter(product => {
@@ -49,6 +65,14 @@ export class SearchService {
       );
     });
 
-    return of(filtered).pipe(delay(400));
+    return of(filtered).pipe(
+      delay(400),
+      tap(products => this.cache.set(trimmed, products))
+    );
+  }
+
+  // Utility to clear query cache
+  clearCache(): void {
+    this.cache.clear();
   }
 }
