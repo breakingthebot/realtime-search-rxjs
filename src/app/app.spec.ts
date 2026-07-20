@@ -116,6 +116,52 @@ describe('InstantCatalog Application Search Systems', () => {
     expect(app.searchResults().length).toBe(1);
     expect(app.searchResults()[0].title).toBe('Kindle Paperwhite');
   });
+
+  it('should filter search results by active category tab', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    app.setCategory('Smartphones');
+    await new Promise(resolve => setTimeout(resolve, 450)); 
+    
+    expect(app.searchResults().length).toBe(2);
+    expect(app.searchResults()[0].category).toBe('Smartphones');
+  });
+
+  it('should sort search results by price low-to-high ascending', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    app.activeSort.set('price-low');
+    await new Promise(resolve => setTimeout(resolve, 450));
+
+    const results = app.searchResults();
+    expect(results.length).toBe(15);
+    expect(results[0].price).toBe(79);
+    expect(results[14].price).toBe(2499);
+  });
+
+  it('should sort search results by price high-to-low descending', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    app.activeSort.set('price-high');
+    await new Promise(resolve => setTimeout(resolve, 450));
+
+    const results = app.searchResults();
+    expect(results.length).toBe(15);
+    expect(results[0].price).toBe(2499);
+    expect(results[14].price).toBe(79);
+  });
 });
 
 import { HighlightPipe } from './utils/highlight.pipe';

@@ -47,10 +47,10 @@
 
       <!-- Clear button (only visible when query has text) -->
       <button 
-        *ngIf="queryValue()"
+        *ngIf="queryValue() || activeCategory() !== 'All' || activeSort() !== 'relevance'"
         class="btn-clear-search" 
         (click)="clearSearch()"
-        title="Clear search query"
+        title="Clear search query and filters"
       >
         ✕
       </button>
@@ -61,7 +61,19 @@
       </span>
     </div>
 
-    <!-- Search Status Bar -->
+    <!-- Category Filter Tabs -->
+    <div class="category-tabs-bar" *ngIf="!hasError()">
+      <button 
+        *ngFor="let cat of categories"
+        class="btn-category-tab"
+        [class.active]="activeCategory() === cat"
+        (click)="setCategory(cat)"
+      >
+        {{ cat }}
+      </button>
+    </div>
+
+    <!-- Search Status Bar & Sorting Dropdown -->
     <div class="search-status-bar" *ngIf="!hasError()">
       <p class="status-count" *ngIf="!isLoading()">
         🔍 Found {{ searchResults().length }} {{ searchResults().length === 1 ? 'result' : 'results' }}
@@ -70,6 +82,22 @@
       <p class="status-count" *ngIf="isLoading()">
         ⏳ Querying microservices...
       </p>
+
+      <div class="sort-selector-wrapper" *ngIf="!isLoading()">
+        <label for="sort-dropdown">Sort by:</label>
+        <select 
+          id="sort-dropdown"
+          [ngModel]="activeSort()"
+          (ngModelChange)="activeSort.set($event)"
+          name="activeSort"
+          class="sort-dropdown-select"
+        >
+          <option value="relevance">Relevance 🎯</option>
+          <option value="price-low">Price: Low to High 💸</option>
+          <option value="price-high">Price: High to Low 📈</option>
+          <option value="rating-high">Rating: High to Low ⭐</option>
+        </select>
+      </div>
     </div>
 
     <!-- Error Alert Banner -->
