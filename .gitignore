@@ -42,3 +42,13 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+.vercel
+
+# Custom standards & environments
+AGENTS.md
+BUILD_NOTES.md
+.env
+venv/
+__pycache__/
+*.pyc
+*.log
