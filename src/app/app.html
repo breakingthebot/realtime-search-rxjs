@@ -145,6 +145,31 @@
           </div>
         </div>
 
+        <!-- Performance Telemetry Stats Chart -->
+        <div class="filter-section telemetry-section">
+          <h3>Query Telemetry</h3>
+          <div class="telemetry-list" *ngIf="latencyLogs().length > 0; else noTelemetry">
+            <div class="telemetry-bar-row" *ngFor="let log of latencyLogs()">
+              <div class="telemetry-meta">
+                <span class="telemetry-query" [title]="log.query">{{ log.query }}</span>
+                <span class="telemetry-duration" [class.cache-hit]="log.isCacheHit">
+                  {{ log.duration }}ms {{ log.isCacheHit ? '⚡' : '☁️' }}
+                </span>
+              </div>
+              <div class="telemetry-track">
+                <div 
+                  class="telemetry-fill" 
+                  [class.cache-hit]="log.isCacheHit"
+                  [style.width.%]="log.isCacheHit ? 2 : Math.min((log.duration / 500) * 100, 100)"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noTelemetry>
+            <p class="telemetry-empty-text">Execute search queries to report real-time RxJS latency.</p>
+          </ng-template>
+        </div>
+
         <!-- Active Reset button -->
         <button 
           *ngIf="queryValue() || selectedCategories().length > 0 || minPrice() > 0 || maxPrice() < 2500 || activeSort() !== 'relevance'"

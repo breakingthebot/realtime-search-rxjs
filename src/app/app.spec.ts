@@ -279,6 +279,43 @@ describe('InstantCatalog Application Search Systems', () => {
       expect(['Smartphones', 'Laptops']).toContain(product.category);
     });
   });
+
+  it('should measure query duration and log performance telemetry metrics for cache misses vs hits', async () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app.searchService.clearCache();
+    fixture.detectChanges();
+
+    // Clear initial load logs
+    await new Promise(resolve => setTimeout(resolve, 800));
+    app.latencyLogs.set([]);
+
+    // Trigger first search (cache miss)
+    app.onQueryChange('sony');
+    await new Promise(resolve => setTimeout(resolve, 900));
+
+    expect(app.latencyLogs().length).toBe(1);
+    expect(app.latencyLogs()[0].query).toBe('"sony"');
+    expect(app.latencyLogs()[0].isCacheHit).toBe(false);
+    expect(app.latencyLogs()[0].duration).toBeGreaterThanOrEqual(380); // API takes 400ms
+
+    // Trigger intermediate different search (cache miss)
+    app.onQueryChange('ipad');
+    await new Promise(resolve => setTimeout(resolve, 900));
+
+    expect(app.latencyLogs().length).toBe(2);
+    expect(app.latencyLogs()[0].query).toBe('"ipad"');
+    expect(app.latencyLogs()[0].isCacheHit).toBe(false);
+
+    // Trigger third search back to 'sony' (now cache hit)
+    app.onQueryChange('sony');
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    expect(app.latencyLogs().length).toBe(3);
+    expect(app.latencyLogs()[0].query).toBe('"sony"');
+    expect(app.latencyLogs()[0].isCacheHit).toBe(true);
+    expect(app.latencyLogs()[0].duration).toBeLessThan(50); // cache is immediate
+  });
 });
 
 import { HighlightPipe } from './utils/highlight.pipe';

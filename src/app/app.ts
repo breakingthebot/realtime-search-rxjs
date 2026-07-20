@@ -59,6 +59,12 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   // Recent queries history state signal
   recentQueries = signal<string[]>([]);
 
+  // Telemetry logs signal
+  latencyLogs = signal<{ query: string; duration: number; isCacheHit: boolean }[]>([]);
+
+  // Expose Math to template
+  protected Math = Math;
+
   // List of available categories
   categoriesList = ['Smartphones', 'Laptops', 'Audio', 'Tablets', 'Accessories', 'Monitors', 'Gaming'];
 
@@ -102,8 +108,14 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
         this.isLoading.set(true);
         this.hasError.set(false);
         
+        const startTime = performance.now();
+        const isCacheHit = this.searchService.hasCachedQuery(query);
+        
         return this.searchService.searchProducts(query).pipe(
           map(products => {
+            const duration = Math.round(performance.now() - startTime);
+            this.recordLatency(query, duration, isCacheHit);
+
             // Apply category filter
             let results = products;
             if (categories.length > 0) {
@@ -205,6 +217,13 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   triggerSearch(value: string): void {
     this.queryValue.set(value);
     this.querySubject.next(value);
+  }
+
+  recordLatency(query: string, duration: number, isCacheHit: boolean): void {
+    const label = query.trim() ? `"${query}"` : 'All Products Query';
+    const newLog = { query: label, duration, isCacheHit };
+    const current = this.latencyLogs();
+    this.latencyLogs.set([newLog, ...current].slice(0, 5));
   }
 
   isCategorySelected(category: string): boolean {

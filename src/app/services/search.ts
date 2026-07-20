@@ -75,4 +75,9 @@ export class SearchService {
   clearCache(): void {
     this.cache.clear();
   }
+
+  // Check if query is in cache
+  hasCachedQuery(query: string): boolean {
+    return this.cache.has(query.trim().toLowerCase());
+  }
 }
